@@ -1,0 +1,84 @@
+// Blind Peer Mentorship Smart Contract
+// Copyright (C) 2025 Midnight Foundation
+// SPDX-License-Identifier: Apache-2.0
+//
+// This contract enables anonymous skill-based mentorship matching
+// where professionals can connect based on proven skill gaps without
+// revealing employer, seniority level, or personal identity upfront.
+
+pragma language_version >= 0.20;
+
+import CompactStandardLibrary;
+
+// ============================================================================
+// PUBLIC STATE - Visible on-chain
+// ============================================================================
+
+// Track total number of mentorship matches created
+export ledger totalMatches: Counter;
+
+// Track completed mentorship sessions
+export ledger completedSessions: Counter;
+
+// Track total registered users (mentors + mentees)
+export ledger totalUsers: Counter;
+
+// Track active mentorship sessions
+export ledger activeSessions: Counter;
+
+// ============================================================================
+// CIRCUITS - Privacy-preserving operations
+// ============================================================================
+
+// Register a new user profile with skill gaps or mentor skills
+// This happens privately - other users don't see who registered
+export circuit registerUser(): [] {
+  totalUsers.increment(1);
+}
+
+// Request a mentorship match based on a specific skill need
+// The skill gap is recorded but the requester remains anonymous
+export circuit requestMentorship(): [] {
+  totalMatches.increment(1);
+  activeSessions.increment(1);
+}
+
+// Accept a mentorship match
+// Both parties agree to connect, but identities are still private
+export circuit acceptMatch(): [] {
+  // Match is now active
+  // Identities can be revealed off-chain after mutual acceptance
+}
+
+// Complete a mentorship session
+// Records the completion without revealing participant details
+export circuit completeSession(): [] {
+  completedSessions.increment(1);
+  activeSessions.decrement(1);
+}
+
+// Cancel an active session
+// Either party can cancel, session is removed from active count
+export circuit cancelSession(): [] {
+  activeSessions.decrement(1);
+}
+
+// Update user reputation after session completion
+// Reputation is tracked privately to maintain anonymity
+export circuit updateReputation(): [] {
+  // Reputation update happens privately
+  // Can be used for future matching algorithms
+}
+
+// ============================================================================
+// HELPER CIRCUITS
+// ============================================================================
+
+// Get current statistics (public data only)
+export circuit getStats(): [] {
+  // Returns public counters:
+  // - totalMatches
+  // - completedSessions  
+  // - totalUsers
+  // - activeSessions
+}

@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "compile": "compact compile src/counter.compact src/managed/counter",
-    "compile:voting": "compact compile src/voting.compact src/managed/voting",
+    "compile": "wsl bash -c \"cd /mnt/c/me-midnight/midnight-starter-template-windows/counter-contract && ~/.local/bin/compact compile +0.22.0 src/counter.compact src/managed/counter\"",
     "build": "tsc",
     "deploy": "node dist/deploy.js",
-    "deploy:voting": "node dist/deploy-voting.js"
+    "dev:frontend": "vite",
+    "build:frontend": "tsc && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-js": "2.4.0",

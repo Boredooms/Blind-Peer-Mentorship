@@ -293,7 +293,8 @@ async function main() {
   if (NETWORK_ID === 'preprod') {
     console.log('  Fund via faucet: https://faucet.preprod.midnight.network/\n');
   } else {
-    console.log('');
+    console.log('  ⚠️  FUND THIS ADDRESS using midnight-local-network:');
+    console.log(`  npm run fund ${unshieldedKeystore.getBech32Address()}\n`);
   }
 
   // --- Wait for sync ---
