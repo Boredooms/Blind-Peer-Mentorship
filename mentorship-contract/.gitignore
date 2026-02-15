@@ -1,0 +1,13 @@
+dist
+node_modules
+.env
+.parcel-cache
+.turbo
+*.log
+coverage
+.nyc_output
+.vscode
+.idea
+.DS_Store
+deploy.json
+mentorship-deployment.json

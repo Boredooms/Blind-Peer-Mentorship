@@ -19,7 +19,7 @@ import { WebSocket } from 'ws';
 import pino from 'pino';
 import pinoPretty from 'pino-pretty';
 
-import { Contract, ledger as counterLedger } from './managed/counter/contract/index.js';
+import { Contract } from './managed/blind-mentorship/contract/index.js';
 import { CompiledContract } from '@midnight-ntwrk/compact-js';
 import { deployContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
@@ -59,7 +59,7 @@ const NETWORK_ID = process.env.NETWORK_ID ?? 'undeployed';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 // ZK assets (keys, zkir) live in src/managed, not dist — tsc doesn't copy them
-const zkConfigPath = path.resolve(currentDir, '..', 'src', 'managed', 'counter');
+const zkConfigPath = path.resolve(currentDir, '..', 'src', 'managed', 'blind-mentorship');
 const deploymentPath = path.resolve(currentDir, '..', 'deployment.json');
 
 // ---------------------------------------------------------------------------
@@ -70,12 +70,16 @@ const logger = pino(
   pinoPretty({ colorize: true, sync: true, translateTime: true, ignore: 'pid,time', singleLine: false }),
 );
 
+// ...
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-type CounterPrivateState = { privateCounter: number };
-type CounterCircuits = ImpureCircuitId<Contract<CounterPrivateState>>;
-const CounterPrivateStateId = 'counterPrivateState' as const;
+// Blind Mentorship State (empty for now based on contract)
+type PrivateState = {};
+type ContractCircuits = ImpureCircuitId<Contract<PrivateState>>;
+const PrivateStateId = 'blindMentorshipPrivateState' as const;
+
 
 // ---------------------------------------------------------------------------
 // Helpers (adapted from counter-cli/src/api.ts)
@@ -344,11 +348,11 @@ async function main() {
     wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore, syncedState,
   );
 
-  const zkConfigProvider = new NodeZkConfigProvider<CounterCircuits>(zkConfigPath);
+  const zkConfigProvider = new NodeZkConfigProvider<ContractCircuits>(zkConfigPath);
 
   const providers = {
-    privateStateProvider: levelPrivateStateProvider<typeof CounterPrivateStateId>({
-      privateStateStoreName: 'counter-private-state',
+    privateStateProvider: levelPrivateStateProvider<typeof PrivateStateId>({
+      privateStateStoreName: 'blind-mentorship-private-state',
       signingKeyStoreName: 'signing-keys',
       midnightDbName: 'midnight-level-db',
       walletProvider: walletAndMidnightProvider,
@@ -361,17 +365,17 @@ async function main() {
   };
 
   // --- Compile contract ---
-  const counterCompiledContract = CompiledContract.make('counter', Contract).pipe(
+  const compiledContract = CompiledContract.make('blind-mentorship', Contract).pipe(
     CompiledContract.withVacantWitnesses,
     CompiledContract.withCompiledFileAssets(zkConfigPath),
   );
 
   // --- Deploy ---
-  const contract = await withStatus('Deploying counter contract (this may take a few minutes)', async () => {
+  const contract = await withStatus('Deploying Blind Mentorship contract (this may take a few minutes)', async () => {
     return deployContract(providers, {
-      compiledContract: counterCompiledContract,
-      privateStateId: CounterPrivateStateId,
-      initialPrivateState: { privateCounter: 0 },
+      compiledContract,
+      privateStateId: PrivateStateId,
+      initialPrivateState: {}, // Empty initial state
     });
   });
 
