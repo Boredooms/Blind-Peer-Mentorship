@@ -105,10 +105,6 @@ Conduct your mentorship session. Upon completion, record it on-chain anonymously
 > The privacy-first interface where users begin their journey.
 ![Blind Peer Mentorship Landing Page](docs/images/landing_page.png)
 
-### 🔗 Connected Dashboard (Wallet Integration)
-> Seamless Web3 matching with the Midnight wallet connected, showing user status and available actions.
-![Dashboard with Connected Wallet](docs/images/connected_dashboard.png)
-
 ---
 
 ## 🏁 Getting Started
