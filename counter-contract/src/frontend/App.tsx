@@ -68,6 +68,7 @@ function App() {
             <AppContainer>
                 <Navigation
                     walletConnected={wallet.connected}
+                    isMock={wallet.isMock}
                     walletAddress={wallet.address || undefined}
                     balance={formatBalance(wallet.balance)}
                     onConnect={wallet.connect}
@@ -97,7 +98,13 @@ function App() {
 
                 <MainContent>
                     <Routes>
-                        <Route path="/" element={<Home onConnectWallet={wallet.connect} />} />
+                        <Route path="/" element={
+                            <Home
+                                onConnectWallet={wallet.connect}
+                                onConnectMock={wallet.connectMock}
+                                isLaceInstalled={wallet.isLaceInstalled}
+                            />
+                        } />
                         <Route path="/register" element={<Register />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/sessions" element={<Sessions />} />

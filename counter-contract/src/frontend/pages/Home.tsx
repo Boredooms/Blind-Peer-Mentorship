@@ -157,9 +157,11 @@ const StatLabel = styled.div`
 
 interface HomeProps {
   onConnectWallet: () => void;
+  onConnectMock: () => void;
+  isLaceInstalled: boolean;
 }
 
-export const Home: React.FC<HomeProps> = ({ onConnectWallet }) => {
+export const Home: React.FC<HomeProps> = ({ onConnectWallet, onConnectMock, isLaceInstalled }) => {
   return (
     <>
       <HeroSection>
@@ -168,9 +170,18 @@ export const Home: React.FC<HomeProps> = ({ onConnectWallet }) => {
           <Subtitle>
             Get matched with mentors based on proven skill gaps—without revealing your employer, seniority level, or personal identity upfront.
           </Subtitle>
-          <CTAButton onClick={onConnectWallet}>
-            Connect Wallet to Start
-          </CTAButton>
+
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <CTAButton onClick={onConnectWallet}>
+              {isLaceInstalled ? 'Connect Lace Wallet' : 'Install Lace Wallet'}
+            </CTAButton>
+            <CTAButton
+              onClick={onConnectMock}
+              style={{ background: 'transparent', border: `2px solid ${theme.colors.white}`, color: theme.colors.white }}
+            >
+              Use Internal Wallet (Fast)
+            </CTAButton>
+          </div>
 
           <FeatureGrid>
             <FeatureCard>

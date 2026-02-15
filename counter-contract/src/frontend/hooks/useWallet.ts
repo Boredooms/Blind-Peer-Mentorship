@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { mockWalletEntry } from '../mocks/mock-wallet';
 
 // CIP-30 Entry Point
 interface WalletEntry {
@@ -32,6 +33,7 @@ declare global {
 
 export interface WalletState {
     connected: boolean;
+    isMock: boolean;
     address: string | null;
     balance: string | null;
     loading: boolean;
@@ -42,6 +44,7 @@ export interface WalletState {
 export const useWallet = () => {
     const [state, setState] = useState<WalletState>({
         connected: false,
+        isMock: false,
         address: null,
         balance: null,
         loading: false,
@@ -67,16 +70,9 @@ export const useWallet = () => {
             if (checkWallet()) {
                 clearInterval(interval);
             }
-        }, 500);
-
-        const timeout = setTimeout(() => {
-            clearInterval(interval);
         }, 5000);
 
-        return () => {
-            clearInterval(interval);
-            clearTimeout(timeout);
-        };
+        return () => clearInterval(interval);
     }, []);
 
     const connect = useCallback(async () => {
@@ -84,7 +80,7 @@ export const useWallet = () => {
 
         try {
             if (!isInstalled && !window.cardano?.lace) {
-                throw new Error('Lace wallet is not installed. Please install it from https://www.lace.io/');
+                throw new Error('Lace wallet is not installed. Please use the Mock Wallet or install Lace.');
             }
 
             const lace = window.cardano!.lace!;
@@ -96,10 +92,8 @@ export const useWallet = () => {
             }
 
             // Get wallet info from the API object
-            // CIP-30 addresses are hex. We verify existence first.
             let address = '';
             try {
-                // Try standard CIP-30 first
                 const addresses = await api.getUsedAddresses();
                 if (addresses.length > 0) {
                     address = addresses[0];
@@ -112,6 +106,7 @@ export const useWallet = () => {
 
             setState({
                 connected: true,
+                isMock: false,
                 address,
                 balance,
                 loading: false,
@@ -124,6 +119,7 @@ export const useWallet = () => {
             console.error('❌ Failed to connect wallet:', error);
             setState({
                 connected: false,
+                isMock: false,
                 address: null,
                 balance: null,
                 loading: false,
@@ -133,9 +129,35 @@ export const useWallet = () => {
         }
     }, [isInstalled]);
 
+    const connectMock = useCallback(async () => {
+        setState(prev => ({ ...prev, loading: true, error: null }));
+        try {
+            console.log('🔄 Connecting to Mock Wallet...');
+            const api = await mockWalletEntry.enable();
+
+            const address = (await api.getUsedAddresses())[0];
+            const balance = await api.getBalance();
+
+            setState({
+                connected: true,
+                isMock: true,
+                address,
+                balance,
+                loading: false,
+                error: null,
+                walletApi: api as any,
+            });
+            console.log('✅ Mock wallet connected');
+        } catch (error: any) {
+            console.error('❌ Failed to connect mock wallet:', error);
+            setState(prev => ({ ...prev, loading: false, error: error.message }));
+        }
+    }, []);
+
     const disconnect = useCallback(() => {
         setState({
             connected: false,
+            isMock: false,
             address: null,
             balance: null,
             loading: false,
@@ -181,7 +203,6 @@ export const useWallet = () => {
                     const isEnabled = await lace.isEnabled();
 
                     if (isEnabled) {
-                        // Must call enable() again to get the API object, it should resolve silently
                         const api = await lace.enable();
 
                         let address = '';
@@ -196,6 +217,7 @@ export const useWallet = () => {
 
                         setState({
                             connected: true,
+                            isMock: false,
                             address,
                             balance,
                             loading: false,
@@ -205,7 +227,7 @@ export const useWallet = () => {
                         setIsInstalled(true);
                     }
                 } catch (error) {
-                    // console.error('Failed to check wallet connection:', error);
+                    // silent
                 }
             }
         };
@@ -218,6 +240,7 @@ export const useWallet = () => {
         ...state,
         isLaceInstalled: isInstalled,
         connect,
+        connectMock,
         disconnect,
         signTransaction,
         refreshBalance,

@@ -95,6 +95,7 @@ const Balance = styled.span`
 
 interface NavigationProps {
   walletConnected: boolean;
+  isMock: boolean;
   walletAddress?: string;
   balance?: string;
   onConnect: () => void;
@@ -103,6 +104,7 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({
   walletConnected,
+  isMock,
   walletAddress,
   balance,
   onConnect,
@@ -130,7 +132,19 @@ export const Navigation: React.FC<NavigationProps> = ({
 
         {walletConnected && walletAddress ? (
           <WalletInfo>
-            <WalletAddress>{truncateAddress(walletAddress)}</WalletAddress>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {isMock && (
+                <span style={{
+                  fontSize: '10px',
+                  background: theme.colors.white,
+                  color: theme.colors.black,
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontWeight: 'bold'
+                }}>INTERNAL</span>
+              )}
+              <WalletAddress>{truncateAddress(walletAddress)}</WalletAddress>
+            </div>
             {balance && <Balance>{balance} tNight</Balance>}
             <WalletButton connected={true} onClick={onDisconnect}>
               Disconnect
